@@ -15,6 +15,7 @@
 from .. import mlog
 import contextlib
 import urllib.request, os, hashlib, shutil, tempfile, stat
+import urllib.parse
 import subprocess
 import sys
 from pathlib import Path
@@ -70,6 +71,7 @@ def open_wrapdburl(urlstring):
 class PackageDefinition:
     def __init__(self, fname):
         self.values = {}
+        self.baseurl = Path(fname).as_uri()
         with open(fname) as ifile:
             first = ifile.readline().strip()
 
@@ -316,7 +318,7 @@ class Resolver:
         if os.path.exists(ofname):
             mlog.log('Using', mlog.bold(packagename), 'from cache.')
         else:
-            srcurl = p.get('source_url')
+            srcurl = urllib.parse.urljoin(p.baseurl, p.get('source_url'))
             mlog.log('Downloading', mlog.bold(packagename), 'from', mlog.bold(srcurl))
             dhash, tmpfile = self.get_data(srcurl)
             expected = p.get('source_hash')
@@ -330,7 +332,7 @@ class Resolver:
             if os.path.exists(filename):
                 mlog.log('Using', mlog.bold(patch_filename), 'from cache.')
             else:
-                purl = p.get('patch_url')
+                purl = urllib.parse.urljoin(p.baseurl, p.get('patch_url'))
                 mlog.log('Downloading patch from', mlog.bold(purl))
                 phash, tmpfile = self.get_data(purl)
                 expected = p.get('patch_hash')
