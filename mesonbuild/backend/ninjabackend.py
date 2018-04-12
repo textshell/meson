@@ -2479,7 +2479,7 @@ rule FORTRAN_DEP_HACK
         # the following loop sometimes consumes two items from command in one pass
         it = iter(commands)
         for item in it:
-            if item in internal:
+            if item in internal and not item.startswith('-'):
                 continue
 
             if item.startswith('-L'):
@@ -2490,6 +2490,7 @@ rule FORTRAN_DEP_HACK
                         path = next(it)
                     except StopIteration:
                         mlog.warning("Generated linker command has -L argument without following path")
+                        break
                 if not os.path.isabs(path):
                     path = os.path.join(build_dir, path)
                 search_dirs.append(path)
@@ -2501,6 +2502,7 @@ rule FORTRAN_DEP_HACK
                         libs.append(next(it))
                     except StopIteration:
                         mlog.warning("Generated linker command has '-l' argument without following library name")
+                        break
             elif os.path.isabs(item) and self.environment.is_library(item) and os.path.isfile(item):
                 absolute_libs.append(item)
 
