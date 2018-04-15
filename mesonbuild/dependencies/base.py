@@ -539,7 +539,7 @@ class PkgConfigDependency(ExternalDependency):
             # file ourselves instead of depending on the compiler to find it
             # with -lfoo or foo.lib. However, we can only do this if we already
             # have some library paths gathered.
-            if self.static:
+            if self.static and self.compiler:
                 if lib.startswith('-L'):
                     libpaths.append(lib[2:])
                     continue
